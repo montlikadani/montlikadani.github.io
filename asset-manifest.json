@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/TabList-Editor/static/css/main.f1d0f2cb.css",
-    "main.js": "/TabList-Editor/static/js/main.5c64534d.js",
-    "static/media/sunset.png": "/TabList-Editor/static/media/sunset.ca7fe121d7f177eb3bed.png",
-    "static/media/night.png": "/TabList-Editor/static/media/night.04871f15f5d311816165.png",
-    "index.html": "/TabList-Editor/index.html",
-    "main.f1d0f2cb.css.map": "/TabList-Editor/static/css/main.f1d0f2cb.css.map",
-    "main.5c64534d.js.map": "/TabList-Editor/static/js/main.5c64534d.js.map"
+    "main.css": "/tablisteditor/static/css/main.f1d0f2cb.css",
+    "main.js": "/tablisteditor/static/js/main.90b9a0a3.js",
+    "static/media/sunset.png": "/tablisteditor/static/media/sunset.ca7fe121d7f177eb3bed.png",
+    "static/media/night.png": "/tablisteditor/static/media/night.04871f15f5d311816165.png",
+    "index.html": "/tablisteditor/index.html",
+    "main.f1d0f2cb.css.map": "/tablisteditor/static/css/main.f1d0f2cb.css.map",
+    "main.90b9a0a3.js.map": "/tablisteditor/static/js/main.90b9a0a3.js.map"
   },
   "entrypoints": [
     "static/css/main.f1d0f2cb.css",
-    "static/js/main.5c64534d.js"
+    "static/js/main.90b9a0a3.js"
   ]
 }
