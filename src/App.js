@@ -3,6 +3,7 @@ import { createBrowserHistory } from "history";
 
 import TLRoot from "./index.jsx";
 
+// https://create-react-app.dev/docs/deployment/
 const history = createBrowserHistory();
 
 function App() {
