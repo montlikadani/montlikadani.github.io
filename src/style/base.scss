@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+}
+
+header {
+    background: #181d1f;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 20px;
+    margin: 0;
+    z-index: 1;
+
+    > .header-link {
+        display: flex;
+        align-items: center;
+        background-color: #252b2d;
+        border-radius: 3px;
+        padding: 5px 8px;
+        margin: 3px 0;
+
+        > h1 {
+            margin: 0;
+            font-size: 24pt;
+            font-weight: 800;
+            color: #fff;
+        }
+    }
+}
+
+a:link,
+a:visited {
+    text-decoration: none;
+    color: unset;
+}
+
+.settings-style {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    > :hover {
+        transition: 0.3s;
+        transform: rotateZ(90deg);
+    }
+}
