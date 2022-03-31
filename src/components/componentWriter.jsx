@@ -28,8 +28,6 @@ class AppendableText extends React.Component {
     }
 }
 
-const bgImg = localStorage.backgroundImage;
-
 const getImageFromTarget = (target) => {
     switch (target) {
         case "Light":
@@ -46,19 +44,18 @@ const getImageFromTarget = (target) => {
 };
 
 export default function ComponentWriter({ state, useTextArea, htmlInput }) {
-    const [backgroundImage, setBackgroundImage] = React.useState(getImageFromTarget(bgImg));
-    const mode = useTextArea ? "tablist mode-text-area" : "tablist mode-text-fields"
+    const [backgroundImage, setBackgroundImage] = React.useState(getImageFromTarget(localStorage.backgroundImage));
 
     return (
         <>
-            <View style={{ display: 'inline-block', paddingTop: 15 }}>
+            <View style={{ display: 'inline-block', paddingTop: 10 }}>
                 <Text style={{
-                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: state.darkMode ? '#b5b5b5' : 'black', width: '10%'
+                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: state.darkMode ? '#b5b5b5' : 'black'
                 }}>
                     Output
                 </Text>
 
-                <FormControl sx={{ float: 'inline-end', width: 200, marginRight: 9 }}>
+                <FormControl sx={{ float: 'inline-end', width: 200, marginRight: 8 }}>
                     <InputLabel variant="standard" htmlFor="sel-bgimg" sx={{
                         color: state.darkMode ? 'white' : 'initial',
                         fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20
@@ -66,13 +63,17 @@ export default function ComponentWriter({ state, useTextArea, htmlInput }) {
                         Change background image
                     </InputLabel>
                     <NativeSelect
-                        defaultValue={bgImg || "Light"}
+                        defaultValue={localStorage.backgroundImage || "Light"}
                         inputProps={{
-                            name: 'native-bgImg',
-                            id: 'sel-bgimg',
+                            id: 'sel-bgimg'
                         }}
                         onChange={event => {
                             const val = event.target.value;
+
+                            if (val === localStorage.backgroundImage) {
+                                return;
+                            }
+
                             const imgSource = getImageFromTarget(val);
 
                             if (imgSource === lighttab) {
@@ -84,10 +85,10 @@ export default function ComponentWriter({ state, useTextArea, htmlInput }) {
                             setBackgroundImage(imgSource);
                         }}
                     >
-                        <option value="Light">Light</option>
-                        <option value="Cloudy">Cloudy</option>
-                        <option value="Night">Night</option>
-                        <option value="Sunset">Sunset</option>
+                        <option>Light</option>
+                        <option>Cloudy</option>
+                        <option>Night</option>
+                        <option>Sunset</option>
                     </NativeSelect>
                 </FormControl>
             </View>
@@ -95,7 +96,7 @@ export default function ComponentWriter({ state, useTextArea, htmlInput }) {
             <div className="output-content">
                 <img width={1080} height={480} src={backgroundImage} alt="tablist" />
 
-                <div className={mode}>
+                <div className={useTextArea ? "tablist mode-text-area" : "tablist mode-text-fields"}>
                     <AppendableText inputHtml={htmlInput} />
                 </div>
             </div>

@@ -38,13 +38,9 @@ a:visited {
 }
 
 .settings-style {
+    color: white;
     padding: 0;
     border: none;
     background: none;
     cursor: pointer;
-
-    > :hover {
-        transition: 0.3s;
-        transform: rotateZ(90deg);
-    }
 }

@@ -51,11 +51,11 @@ window.onclick = event => {
     const targetId = event.target.id;
     const tagName = event.target.tagName;
 
-    if (colorPickerOpen !== null && targetId !== 'cp' && targetId !== 'pick-color-btn' && tagName !== 'path'
+    if (colorPickerOpen && targetId !== 'cp' && targetId !== 'pick-color-btn' && tagName !== 'path'
         && tagName !== 'svg' && tagName !== 'DIV' || targetId === 'root') {
         const cp = document.getElementById("color-picker");
 
-        if (cp !== null) {
+        if (cp) {
             document.getElementById("cp").removeChild(cp);
         }
 
@@ -80,7 +80,7 @@ export default function ComponentCreator({ state }) {
 
         const li = localStorage.lastInput;
 
-        if (li === undefined) {
+        if (!li) {
             return;
         }
 
@@ -165,7 +165,7 @@ export default function ComponentCreator({ state }) {
         }
 
         try {
-            toHtml(newContent, (err, res) => setHtmlInput(res));
+            toHtml(newContent, (_err, res) => setHtmlInput(res));
         } catch (error) {
         }
     }, [newContent]);
@@ -256,11 +256,11 @@ export default function ComponentCreator({ state }) {
 
                 // If header is null then use footer
                 let comp = data.header;
-                if (comp === null) {
+                if (!comp) {
                     comp = data.footer;
                 }
 
-                if (comp === null) {
+                if (!comp) {
                     return; // Can not parse header/footer
                 }
 
@@ -305,7 +305,7 @@ export default function ComponentCreator({ state }) {
     };
 
     const insertFormattingAtCursor = (type) => {
-        if (activeTextFieldElement === null) {
+        if (!activeTextFieldElement) {
             if (useTextArea) {
                 activeTextFieldElement = document.getElementById("textarea");
             } else {
@@ -313,7 +313,7 @@ export default function ComponentCreator({ state }) {
             }
         }
 
-        if (activeTextFieldElement === null) {
+        if (!activeTextFieldElement) {
             return;
         }
 
@@ -403,7 +403,7 @@ export default function ComponentCreator({ state }) {
 
                     <Button disableRipple disableElevation size="small" variant="outlined" title="Pick color"
                         id='pick-color-btn' onClick={() => {
-                            if (colorPickerOpen !== null) {
+                            if (colorPickerOpen) {
                                 document.getElementById("cp").removeChild(document.getElementById("color-picker"));
                                 colorPickerOpen = null;
                                 return;
@@ -429,11 +429,11 @@ export default function ComponentCreator({ state }) {
                                     }
                                 ]
                             }).on("input:end", function (color) {
-                                if (activeTextFieldElement === null && useTextArea) {
+                                if (!activeTextFieldElement && useTextArea) {
                                     activeTextFieldElement = document.getElementById("textarea");
                                 }
 
-                                if (activeTextFieldElement === null) {
+                                if (!activeTextFieldElement) {
                                     return;
                                 }
 
@@ -564,7 +564,7 @@ export default function ComponentCreator({ state }) {
             {useTextArea ?
                 <form spellCheck="false">
                     <textarea style={{ resize: 'none', maxWidth: '95%', fontSize: 16, marginTop: 10, backgroundColor: 'inherit', color: state.darkMode ? 'white' : 'initial' }}
-                        id="textarea" wrap="hard" name="hf-text-area" rows="8" cols="110" maxLength="3000"
+                        id="textarea" wrap="hard" rows="8" cols="110" maxLength="4000"
                         defaultValue={localStorage.lastInput === undefined ? "" : storedTextAreaValue}
                         placeholder="Here you can specify both the header and the footer"
                         onFocus={event => activeTextFieldElement = event.currentTarget}
@@ -572,21 +572,21 @@ export default function ComponentCreator({ state }) {
                     </textarea>
                 </form>
                 :
-                <View style={{ marginTop: 4, overflow: 'auto', height: 500, maxWidth: '80%' }}>
+                <div style={{ marginTop: 5, overflow: 'auto', height: 500, maxWidth: '95%', border: '1px solid grey', padding: '0 10px 10px 10px' }}>
                     {textFields.length === 0 ? <></> : textFields.map((field, index) => <Stack key={"field_" + field.id} direction="row">
                         <TextField
                             hiddenLabel
                             autoFocus
                             id={"textfield" + field.id}
                             defaultValue={field.value}
-                            placeholder="Input..."
+                            placeholder="..."
                             onFocus={event => activeTextFieldElement = event.currentTarget}
                             onKeyUp={event => onTextChange(event, index)}
                             sx={{
-                                width: '80%', marginLeft: '10%', marginTop: 2, backgroundColor: 'white', borderRadius: 1
+                                width: '100%', marginTop: 2, backgroundColor: 'white', borderRadius: 1
                             }}
                             inputProps={{
-                                maxLength: 8000
+                                maxLength: 4000
                             }}
                         />
 
@@ -634,10 +634,10 @@ export default function ComponentCreator({ state }) {
                             </MenuItem>
                         </Menu>
                     }
-                </View>
+                </div>
             }
 
             <ComponentWriter state={state} useTextArea={useTextArea} htmlInput={htmlInput} />
-        </View >
+        </View>
     );
 }

@@ -1,5 +1,3 @@
-import React from 'react';
-
 // https://mui.com/
 import Stack from '@mui/material/Stack';
 
@@ -12,7 +10,7 @@ export default function Header({ state, setState }) {
                 <h1>TabList editor</h1>
             </a>
 
-            <Stack spacing={2} direction="row" sx={{ marginRight: 0, marginLeft: 'auto' }}>
+            <Stack spacing={2} direction="row" sx={{ marginLeft: 'auto' }}>
                 <Settings state={state} setState={setState} />
             </Stack>
         </header>

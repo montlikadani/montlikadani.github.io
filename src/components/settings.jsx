@@ -17,21 +17,34 @@ export default function Settings({ state, setState }) {
     const settingsOpen = Boolean(settingsPosition);
 
     return (
-        <div onMouseEnter={event => {
-            if (!settingsOpen) {
-                setSettingsPosition(event.currentTarget);
-            }
-        }}
-            style={{ display: 'inline-block', marginRight: 120 }}>
-            <button className='settings-style' onClick={event => setSettingsPosition(settingsOpen ? null : event.currentTarget)}>
-                <SettingsOutlinedIcon titleAccess="Settings" sx={{ color: 'white' }} />
+        <div style={{ display: 'inline-block', marginRight: 50 }}>
+            <button className='settings-style' onClick={event => {
+                setSettingsPosition(settingsOpen ? null : event.currentTarget);
+
+                const settingsIcon = document.getElementById('settings-icon');
+
+                settingsIcon.style.transition = '0.5s';
+                settingsIcon.style.transform = 'rotateZ(90deg)';
+            }}>
+                <SettingsOutlinedIcon id='settings-icon' />
+                <div style={{ marginTop: -15, height: 20 }}>
+                    <p style={{ fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 15 }}>Settings</p>
+                </div>
             </button>
 
             {settingsOpen ?
                 <Menu
                     open={settingsOpen}
-                    onClose={() => setSettingsPosition(null)}
+                    onClose={() => {
+                        setSettingsPosition(null);
+
+                        const settingsIcon = document.getElementById('settings-icon');
+
+                        settingsIcon.style.transition = '0.5s';
+                        settingsIcon.style.transform = 'rotateZ(-90deg)';
+                    }}
                     anchorEl={settingsPosition}
+                    disableScrollLock
                 >
                     <MenuItem divider onClick={() => {
                         if (state.darkMode) {
