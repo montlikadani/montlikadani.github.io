@@ -140,7 +140,7 @@ export default function ComponentCreator({ state }) {
 
         // Stringify textFields into json and save to storage
         if (state.saveInput) {
-            if (localStorage.lastInput === undefined) {
+            if (!localStorage.lastInput) {
                 localStorage.setItem("lastInput", JSON.stringify(textFields))
             } else {
                 localStorage.lastInput = JSON.stringify(textFields);
@@ -179,22 +179,33 @@ export default function ComponentCreator({ state }) {
         let lastInput = event.target.value;
 
         if (lastInput.length === 0) {
-            if (state.saveInput) { // Remove empty content from local storage
-                localStorage.removeItem("lastInput");
+            if (useTextArea) {
+                if (state.saveInput) { // Remove empty content from local storage
+                    localStorage.removeItem("lastInput");
+                }
+
+                setNewContent("");
+
+                // Disable "clear input" button too
+                if (!textAreaButtonDisabled) {
+                    setTextAreaButtonDisabled(true);
+                }
+
+                return;
             }
 
-            setNewContent("");
+            if (textFields.length === 0) {
+                if (state.saveInput) {
+                    localStorage.removeItem("lastInput");
+                }
 
-            // Disable "clear input" button too
-            if (useTextArea && !textAreaButtonDisabled) {
-                setTextAreaButtonDisabled(true);
+                setNewContent("");
+                return;
             }
-
-            return;
+        } else {
+            // Only § codes supported for colouring
+            lastInput = lastInput.replace(/&/g, '§');
         }
-
-        // Only § codes supported for colouring
-        lastInput = lastInput.replace(/&/g, '§');
 
         // Default text area
         if (useTextArea) {
@@ -204,7 +215,7 @@ export default function ComponentCreator({ state }) {
 
             // Save input to local storage
             if (state.saveInput) {
-                if (localStorage.lastInput === undefined) {
+                if (!localStorage.lastInput) {
                     localStorage.setItem("lastInput", lastInput.replace(/\n/g, '%;;%')); // Replace \n line breaks to %;;%
                 } else {
                     localStorage.lastInput = lastInput.replace(/\n/g, '%;;%'); // Replace \n line breaks to %;;%
@@ -214,18 +225,16 @@ export default function ComponentCreator({ state }) {
             // Re-render with the new input
             setNewContent(lastInput);
         } else { // Text fields
-            setTextFields(updateTextFieldAtIndex(indexOfTextField, lastInput));
+            updateTextFieldAtIndex(indexOfTextField, lastInput);
         }
     };
 
-    const updateTextFieldAtIndex = (index, value) => {
-        // Spread operator is fastest in copying array, but still, a minor lag can reproducable when typing
-        const copy = [...textFields];
-        const element = copy[index];
-        const id = element === undefined ? 0 : element.id;
+    const updateTextFieldAtIndex = (index, val) => {
+        const newArray = [...textFields];
+        const element = newArray[index];
 
-        copy[index] = { value: value, id: id };
-        return copy;
+        newArray[index] = { value: val, id: !element ? 0 : element.id };
+        setTextFields(newArray);
     };
 
     const onTextFieldMenuClose = () => {
@@ -279,7 +288,7 @@ export default function ComponentCreator({ state }) {
 
             if (useTextArea) {
                 if (state.saveInput) {
-                    if (localStorage.lastInput === undefined) {
+                    if (!localStorage.lastInput) {
                         localStorage.setItem("lastInput", res.replace(/\n/g, '%;;%'));
                     } else {
                         localStorage.lastInput = res.replace(/\n/g, '%;;%');
@@ -292,7 +301,7 @@ export default function ComponentCreator({ state }) {
 
                 for (const line of res.split('\n')) {
                     const last = copy[copy.length - 1];
-                    const lastId = last === undefined ? 0 : last.id;
+                    const lastId = !last ? 0 : last.id;
 
                     copy.push({ value: line, id: lastId + 1 });
                 }
@@ -352,12 +361,16 @@ export default function ComponentCreator({ state }) {
         element.value = text.substring(0, start) + val + text.substring(element.selectionEnd, text.length);
         element.selectionStart = element.selectionEnd = start + val.length;
 
-        // Re-render with the new value
-        setNewContent(element.value);
+        if (useTextArea) {
+            setNewContent(element.value);
 
-        // Enable clear button if disabled
-        if (useTextArea && textAreaButtonDisabled) {
-            setTextAreaButtonDisabled(false);
+            // Enable clear button if disabled
+            if (textAreaButtonDisabled) {
+                setTextAreaButtonDisabled(false);
+            }
+        } else {
+            const id = parseInt(element.id.replace("textfield", ""));
+            updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), element.value);
         }
     };
 
@@ -520,7 +533,7 @@ export default function ComponentCreator({ state }) {
                         <Button disableRipple disabled={textFields.length > 60} variant="contained" startIcon={<AddIcon />}
                             onClick={() => {
                                 const last = textFields[textFields.length - 1];
-                                const lastId = last === undefined ? 0 : last.id;
+                                const lastId = !last ? 0 : last.id;
 
                                 setTextFields([...textFields, { value: '', id: lastId + 1 }]);
                             }}>
@@ -563,9 +576,12 @@ export default function ComponentCreator({ state }) {
 
             {useTextArea ?
                 <form spellCheck="false">
-                    <textarea style={{ resize: 'none', maxWidth: '95%', fontSize: 16, marginTop: 10, backgroundColor: 'inherit', color: state.darkMode ? 'white' : 'initial' }}
+                    <textarea style={{
+                        resize: 'none', maxWidth: '95%', fontSize: 16, marginTop: 10, backgroundColor: 'inherit',
+                        color: state.darkMode ? 'white' : 'initial'
+                    }}
                         id="textarea" wrap="hard" rows="8" cols="110" maxLength="4000"
-                        defaultValue={localStorage.lastInput === undefined ? "" : storedTextAreaValue}
+                        defaultValue={!localStorage.lastInput ? "" : storedTextAreaValue}
                         placeholder="Here you can specify both the header and the footer"
                         onFocus={event => activeTextFieldElement = event.currentTarget}
                         onKeyUp={event => onTextChange(event, 0)}>
@@ -625,7 +641,7 @@ export default function ComponentCreator({ state }) {
                             <MenuItem disableRipple onClick={() => {
                                 const id = parseInt(textFieldOptions.id);
 
-                                setTextFields(updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), ""));
+                                updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), "");
                                 document.getElementById("textfield" + id).value = "";
                                 onTextFieldMenuClose();
                             }}>

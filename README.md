@@ -16,6 +16,5 @@ Site is avilable at https://montlikadani.github.io/
 - [NodeJs](https://github.com/nodejs/node)
 - [Yarn](https://github.com/yarnpkg/berry)
   - `corepack enable` (In case if yarn is unrecognized command)
-  - `yarn set version from sources` (to do not break the compatibility between devices in yarn.lock)
   - `yarn` (install dependencies)
   - `yarn start` (for local testing)
