@@ -69,7 +69,7 @@ export default function ComponentCreator({ state }) {
     const [textFieldOptions, setTextFieldOptions] = React.useState(null);
 
     let [newContent, setNewContent] = React.useState("");
-    let [htmlInput, setHtmlInput] = React.useState("");
+    const [htmlInput, setHtmlInput] = React.useState("");
 
     const [textAreaButtonDisabled, setTextAreaButtonDisabled] = React.useState(localStorage.lastInput === undefined);
 
@@ -222,7 +222,7 @@ export default function ComponentCreator({ state }) {
                 }
             }
 
-            // Re-render with the new input
+            // Rerender with the new input
             setNewContent(lastInput);
         } else { // Text fields
             updateTextFieldAtIndex(indexOfTextField, lastInput);
@@ -301,9 +301,8 @@ export default function ComponentCreator({ state }) {
 
                 for (const line of res.split('\n')) {
                     const last = copy[copy.length - 1];
-                    const lastId = !last ? 0 : last.id;
 
-                    copy.push({ value: line, id: lastId + 1 });
+                    copy.push({ value: line, id: !last ? 0 : last.id + 1 });
                 }
 
                 setTextFields(copy);
@@ -416,7 +415,7 @@ export default function ComponentCreator({ state }) {
 
                     <Button disableRipple disableElevation size="small" variant="outlined" title="Pick color"
                         id='pick-color-btn' onClick={() => {
-                            if (colorPickerOpen) {
+                            if (colorPickerOpen !== null) {
                                 document.getElementById("cp").removeChild(document.getElementById("color-picker"));
                                 colorPickerOpen = null;
                                 return;
@@ -533,9 +532,8 @@ export default function ComponentCreator({ state }) {
                         <Button disableRipple disabled={textFields.length > 60} variant="contained" startIcon={<AddIcon />}
                             onClick={() => {
                                 const last = textFields[textFields.length - 1];
-                                const lastId = !last ? 0 : last.id;
 
-                                setTextFields([...textFields, { value: '', id: lastId + 1 }]);
+                                setTextFields([...textFields, { value: '', id: !last ? 0 : last.id + 1 }]);
                             }}>
                             Add new text line
                         </Button>
