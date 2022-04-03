@@ -92,7 +92,11 @@ export default function ComponentCreator({ state }) {
                 const json = JSON.parse(li);
 
                 for (let i = 0; i < json.length; i++) {
-                    storedTextAreaValue += json[i].value.replace(/%;;%/g, '\n') + (i + 1 < json.length ? '\n' : "");
+                    storedTextAreaValue += json[i].value.replace(/%;;%/g, '\n');
+
+                    if (i + 1 < json.length) {
+                        storedTextAreaValue += "\n";
+                    }
                 }
             } catch (error) {
             }
@@ -151,7 +155,11 @@ export default function ComponentCreator({ state }) {
         let newCont = "";
 
         for (let i = 0; i < textFields.length; i++) {
-            newCont += textFields[i].value + (i + 1 < textFields.length ? '\n' : "");
+            newCont += textFields[i].value;
+
+            if (i + 1 < textFields.length) {
+                newCont += "\n";
+            }
         }
 
         setNewContent(newCont);
@@ -230,6 +238,7 @@ export default function ComponentCreator({ state }) {
     };
 
     const updateTextFieldAtIndex = (index, val) => {
+        // To rerender we need to shallow copy the array
         const newArray = [...textFields];
         const element = newArray[index];
 
@@ -276,7 +285,11 @@ export default function ComponentCreator({ state }) {
                 res = "";
 
                 for (let i = 0; i < comp.length; i++) {
-                    res += comp[i] + (i + 1 < comp.length ? '\n' : "");
+                    res += comp[i];
+
+                    if (i + 1 < comp.length) {
+                        res += "\n";
+                    }
                 }
             }
 
@@ -317,7 +330,12 @@ export default function ComponentCreator({ state }) {
             if (useTextArea) {
                 activeTextFieldElement = document.getElementById("textarea");
             } else {
-                return;
+                if (textFields.length === 0) {
+                    return;
+                }
+
+                // Insert the formatting to the last text field (if present)
+                activeTextFieldElement = document.getElementById("textfield" + textFields[textFields.length - 1].id);
             }
         }
 
@@ -386,12 +404,8 @@ export default function ComponentCreator({ state }) {
                 </Text>
 
                 <Stack spacing={1} direction="row" sx={{ float: 'inline-end' }}>
-                    <Button disableRipple disableElevation size="small" variant="outlined" title="Copy input"
-                        onClick={() => {
-                            if (newContent.length !== 0) {
-                                navigator.clipboard.writeText(newContent);
-                            }
-                        }}>
+                    <Button disableRipple disableElevation disabled={newContent.length === 0} size="small" variant="outlined" title="Copy input"
+                        onClick={() => navigator.clipboard.writeText(newContent)}>
                         <ContentCopyIcon />
                     </Button>
 
@@ -456,21 +470,19 @@ export default function ComponentCreator({ state }) {
                                     // Make sure we are in the correct selection index
                                     if (arr.from === activeTextFieldElement.selectionEnd - arr.name.length) {
                                         const text = activeTextFieldElement.value;
-                                        const name = arr.name;
-                                        const index = text.indexOf(name, arr.from); // Find hex color from cached index
+                                        const index = text.indexOf(arr.name, arr.from); // Find hex color from cached index
 
                                         if (index !== -1) {
                                             if (index === 0) { // If there was no text specified (empty content)
-                                                const textLength = text.length;
-                                                const nameLength = name.length;
+                                                const nameLength = arr.name.length;
 
-                                                if (textLength !== nameLength) { // Only slice the hex color if there was any other text specified
-                                                    activeTextFieldElement.value = text.slice(nameLength, textLength);
+                                                if (text.length !== nameLength) { // Only slice the hex color if there was any other text specified
+                                                    activeTextFieldElement.value = text.slice(nameLength, text.length);
                                                 } else { // Empty value if its only the hex value exist in the content
                                                     activeTextFieldElement.value = "";
                                                 }
                                             } else { // Delete hex color from the text
-                                                activeTextFieldElement.value = text.substring(0, index) + text.substring(index + name.length, text.length);
+                                                activeTextFieldElement.value = text.substring(0, index) + text.substring(index + arr.name.length, text.length);
                                             }
                                         }
                                     }
@@ -542,6 +554,7 @@ export default function ComponentCreator({ state }) {
                                 textFields.length = 0; // Fully clear array
                                 localStorage.removeItem("lastInput"); // Remove the lastInput cache
                                 setTextFields([...textFields]); // Fire callback function to re-render the fields (remove them)
+                                activeTextFieldElement = null;
                             }}>
                             Remove all
                         </Button>
@@ -587,7 +600,7 @@ export default function ComponentCreator({ state }) {
                 </form>
                 :
                 <div style={{ marginTop: 5, overflow: 'auto', height: 500, maxWidth: '95%', border: '1px solid grey', padding: '0 10px 10px 10px' }}>
-                    {textFields.length === 0 ? <></> : textFields.map((field, index) => <Stack key={"field_" + field.id} direction="row">
+                    {textFields.length !== 0 && textFields.map((field, index) => <Stack key={"field_" + field.id} direction="row">
                         <TextField
                             hiddenLabel
                             autoFocus
@@ -604,14 +617,8 @@ export default function ComponentCreator({ state }) {
                             }}
                         />
 
-                        <IconButton
-                            disableRipple
-                            id={field.id}
-                            onClick={event => setTextFieldOptions(event.currentTarget)}
-                            sx={{ marginTop: 2 }}
-                        >
-                            <MoreVertIcon color="info" />
-                        </IconButton>
+                        <MoreVertIcon titleAccess='Tools' id={field.id} onClick={event => setTextFieldOptions(event.currentTarget)} color="info"
+                            sx={{ cursor: 'pointer', margin: '30px 0 0 10px' }} />
                     </Stack>
                     )}
 
@@ -622,6 +629,7 @@ export default function ComponentCreator({ state }) {
                             anchorEl={textFieldOptions}
                         >
                             <MenuItem disableRipple onClick={() => {
+                                activeTextFieldElement = null;
 
                                 // Remove from storage if its the last one
                                 if (textFields.length - 1 === 0) {
