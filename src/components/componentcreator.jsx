@@ -89,19 +89,21 @@ export default function ComponentCreator({ state }) {
         if (useTextArea) {
             try {
                 // Try to convert from json if possible
-                const json = JSON.parse(li);
+                const json = Array.from(JSON.parse(li));
 
                 for (let i = 0; i < json.length; i++) {
-                    storedTextAreaValue += json[i].value.replace(/%;;%/g, '\n');
+                    const value = json[i].value;
+
+                    if (value) {
+                        storedTextAreaValue += value.replace(/%;;%/g, '\n');
+                    }
 
                     if (i + 1 < json.length) {
                         storedTextAreaValue += "\n";
                     }
                 }
             } catch (error) {
-            }
-
-            if (storedTextAreaValue.length === 0) { // If the conversation fails we uses the cached input
+                // If the conversation fails we uses the cached input
                 storedTextAreaValue = li.replace(/%;;%/g, '\n');
             }
 
@@ -115,7 +117,7 @@ export default function ComponentCreator({ state }) {
                 // Try with parsing json
                 setTextFields(JSON.parse(li));
             } catch (error) { // Append new lines by splitting %;;% characters
-                const split = li.split("%;;%");
+                const split = Array.from(li.split("%;;%"));
 
                 if (split.length !== 0) {
                     for (let i = 0; i < split.length; i++) {

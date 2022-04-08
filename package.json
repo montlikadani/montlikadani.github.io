@@ -22,9 +22,9 @@
     "react-native-web": "^0.17.7",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.0",
-    "sass": "^1.49.11",
+    "sass": "^1.50.0",
     "sass-loader": "^12.6.0",
-    "webpack": "^5.71.0"
+    "webpack": "^5.72.0"
   },
   "scripts": {
     "predeploy": "npm run build",
