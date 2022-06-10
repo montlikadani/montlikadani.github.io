@@ -7,7 +7,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 // MUI Icons
@@ -39,27 +38,20 @@ import ComponentWriter from './componentWriter';
 let activeTextFieldElement = null;
 let storedTextAreaValue = "";
 let lastHexColor = [];
-let colorPickerOpen = null;
+let colorPickerOpen = false;
 
 // Listens to click events to close the color picker
-// todo Need better impl
 window.onclick = event => {
+    if (!colorPickerOpen) {
+        return;
+    }
 
-    // path, svg - the small icon on the button
-    // DIV - the picker area (but can be any other div)
+    const cp = document.getElementById("color-picker");
+    const target = event.target;
 
-    const targetId = event.target.id;
-    const tagName = event.target.tagName;
-
-    if (colorPickerOpen && targetId !== 'cp' && targetId !== 'pick-color-btn' && tagName !== 'path'
-        && tagName !== 'svg' && tagName !== 'DIV' || targetId === 'root') {
-        const cp = document.getElementById("color-picker");
-
-        if (cp) {
-            document.getElementById("cp").removeChild(cp);
-        }
-
-        colorPickerOpen = null;
+    if (!cp?.contains(target) && !document.getElementById("pick-color-btn")?.contains(target)) {
+        document.getElementById("cp").removeChild(cp);
+        colorPickerOpen = false;
     }
 };
 
@@ -89,7 +81,7 @@ export default function ComponentCreator({ state }) {
         if (useTextArea) {
             try {
                 // Try to convert from json if possible
-                const json = Array.from(JSON.parse(li));
+                const json = [...JSON.parse(li)];
 
                 for (let i = 0; i < json.length; i++) {
                     const value = json[i].value;
@@ -145,13 +137,7 @@ export default function ComponentCreator({ state }) {
         }
 
         // Stringify textFields into json and save to storage
-        if (state.saveInput) {
-            if (!localStorage.lastInput) {
-                localStorage.setItem("lastInput", JSON.stringify(textFields))
-            } else {
-                localStorage.lastInput = JSON.stringify(textFields);
-            }
-        }
+        saveInputToStorage(JSON.stringify(textFields));
 
         // Append all textFields in plain text and re-render
         let newCont = "";
@@ -224,13 +210,7 @@ export default function ComponentCreator({ state }) {
             }
 
             // Save input to local storage
-            if (state.saveInput) {
-                if (!localStorage.lastInput) {
-                    localStorage.setItem("lastInput", lastInput.replace(/\n/g, '%;;%')); // Replace \n line breaks to %;;%
-                } else {
-                    localStorage.lastInput = lastInput.replace(/\n/g, '%;;%'); // Replace \n line breaks to %;;%
-                }
-            }
+            saveInputToStorage(lastInput.replace(/\n/g, '%;;%')); // Replace \n line breaks to %;;%
 
             // Rerender with the new input
             setNewContent(lastInput);
@@ -302,14 +282,7 @@ export default function ComponentCreator({ state }) {
             res = res.replace(/&/g, '§');
 
             if (useTextArea) {
-                if (state.saveInput) {
-                    if (!localStorage.lastInput) {
-                        localStorage.setItem("lastInput", res.replace(/\n/g, '%;;%'));
-                    } else {
-                        localStorage.lastInput = res.replace(/\n/g, '%;;%');
-                    }
-                }
-
+                saveInputToStorage(res.replace(/\n/g, '%;;%'));
                 setNewContent(document.getElementById("textarea").value += res);
             } else {
                 const copy = [...textFields];
@@ -372,16 +345,29 @@ export default function ComponentCreator({ state }) {
         activeTextFieldElement.focus();
     };
 
+    const saveInputToStorage = (text) => {
+        if (state.saveInput) {
+            if (localStorage.lastInput) {
+                localStorage.lastInput = text;
+            } else {
+                localStorage.setItem("lastInput", text);
+            }
+        }
+    };
+
     // Insert text to the last active element at cursor position
     const insertTextAtCursor = (val, element) => {
         const start = element.selectionStart;
-        const text = element.value;
+        let text = element.value;
 
         element.value = text.substring(0, start) + val + text.substring(element.selectionEnd, text.length);
         element.selectionStart = element.selectionEnd = start + val.length;
+        text = element.value;
+
+        saveInputToStorage(text);
 
         if (useTextArea) {
-            setNewContent(element.value);
+            setNewContent(text);
 
             // Enable clear button if disabled
             if (textAreaButtonDisabled) {
@@ -389,7 +375,7 @@ export default function ComponentCreator({ state }) {
             }
         } else {
             const id = parseInt(element.id.replace("textfield", ""));
-            updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), element.value);
+            updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), text);
         }
     };
 
@@ -431,9 +417,9 @@ export default function ComponentCreator({ state }) {
 
                     <Button disableRipple disableElevation size="small" variant="outlined" title="Pick color"
                         id='pick-color-btn' onClick={() => {
-                            if (colorPickerOpen !== null) {
+                            if (colorPickerOpen) {
                                 document.getElementById("cp").removeChild(document.getElementById("color-picker"));
-                                colorPickerOpen = null;
+                                colorPickerOpen = false;
                                 return;
                             }
 
@@ -442,7 +428,7 @@ export default function ComponentCreator({ state }) {
 
                             document.getElementById("cp").appendChild(divElement);
 
-                            colorPickerOpen = new iro.ColorPicker(document.getElementById("color-picker"), {
+                            new iro.ColorPicker(document.getElementById("color-picker"), {
                                 width: 250,
                                 layout: [
                                     {
@@ -497,6 +483,8 @@ export default function ComponentCreator({ state }) {
 
                                 insertTextAtCursor(color.hexString, activeTextFieldElement);
                             });
+
+                            colorPickerOpen = true;
                         }}>
                         <ColorLensIcon />
                     </Button>
@@ -605,7 +593,6 @@ export default function ComponentCreator({ state }) {
                     {textFields.length !== 0 && textFields.map((field, index) => <Stack key={"field_" + field.id} direction="row">
                         <TextField
                             hiddenLabel
-                            autoFocus
                             id={"textfield" + field.id}
                             defaultValue={field.value}
                             placeholder="..."
