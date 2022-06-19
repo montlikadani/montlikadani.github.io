@@ -16,5 +16,9 @@ Site is avilable at https://montlikadani.github.io/
 - [NodeJs](https://github.com/nodejs/node)
 - [Yarn](https://github.com/yarnpkg/berry)
   - `corepack enable` (In case if yarn is unrecognized command)
-  - `yarn` (install dependencies)
+  - `npm install --force` (install dependencies) `--force` to reinstall all dependency including `react-scripts`
   - `yarn start` (for local testing)
+
+### Deploy/Publish site to Github pages
+- `npm install react-scripts --force` (only run this if `react-scripts` dependency is missing from `node_modules`)
+- `npm run deploy` (push new changes to `gh-pages` branch (from `main`) and publish site)

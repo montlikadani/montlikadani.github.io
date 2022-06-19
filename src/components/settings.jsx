@@ -23,8 +23,10 @@ export default function Settings({ state, setState }) {
 
                 const settingsIcon = document.getElementById('settings-icon');
 
-                settingsIcon.style.transition = '0.5s';
-                settingsIcon.style.transform = 'rotateZ(90deg)';
+                if (settingsIcon) {
+                    settingsIcon.style.transition = '0.5s';
+                    settingsIcon.style.transform = 'rotateZ(90deg)';
+                }
             }}>
                 <SettingsOutlinedIcon id='settings-icon' />
                 <div style={{ marginTop: -15, height: 20 }}>
@@ -40,8 +42,10 @@ export default function Settings({ state, setState }) {
 
                         const settingsIcon = document.getElementById('settings-icon');
 
-                        settingsIcon.style.transition = '0.5s';
-                        settingsIcon.style.transform = 'rotateZ(-90deg)';
+                        if (settingsIcon) {
+                            settingsIcon.style.transition = '0.5s';
+                            settingsIcon.style.transform = 'rotateZ(-90deg)';
+                        }
                     }}
                     anchorEl={settingsPosition}
                     disableScrollLock

@@ -50,7 +50,7 @@ window.onclick = event => {
     const target = event.target;
 
     if (!cp?.contains(target) && !document.getElementById("pick-color-btn")?.contains(target)) {
-        document.getElementById("cp").removeChild(cp);
+        document.getElementById("cp")?.removeChild(cp);
         colorPickerOpen = false;
     }
 };
@@ -81,7 +81,7 @@ export default function ComponentCreator({ state }) {
         if (useTextArea) {
             try {
                 // Try to convert from json if possible
-                const json = [...JSON.parse(li)];
+                const json = Array.from(JSON.parse(li));
 
                 for (let i = 0; i < json.length; i++) {
                     const value = json[i].value;
@@ -100,10 +100,13 @@ export default function ComponentCreator({ state }) {
             }
 
             if (state.saveInput) {
-                newContent = storedTextAreaValue;
+                setNewContent(storedTextAreaValue);
             }
 
-            document.getElementById("textarea").value = newContent;
+            const area = document.getElementById("textarea");
+            if (area) {
+                area.value = storedTextAreaValue;
+            }
         } else if (textFields.length === 0) {
             try {
                 // Try with parsing json
@@ -283,7 +286,11 @@ export default function ComponentCreator({ state }) {
 
             if (useTextArea) {
                 saveInputToStorage(res.replace(/\n/g, '%;;%'));
-                setNewContent(document.getElementById("textarea").value += res);
+
+                const area = document.getElementById("textarea");
+                if (area) {
+                    setNewContent(area.value += res);
+                }
             } else {
                 const copy = [...textFields];
 
@@ -312,10 +319,10 @@ export default function ComponentCreator({ state }) {
                 // Insert the formatting to the last text field (if present)
                 activeTextFieldElement = document.getElementById("textfield" + textFields[textFields.length - 1].id);
             }
-        }
 
-        if (!activeTextFieldElement) {
-            return;
+            if (!activeTextFieldElement) {
+                return;
+            }
         }
 
         let format;
@@ -379,14 +386,14 @@ export default function ComponentCreator({ state }) {
         }
     };
 
-    const fitColor = state.darkMode ? '#b5b5b5' : 'black';
+    const preferredColor = state.darkMode ? '#b5b5b5' : 'initial';
     const textFieldOptionsOpen = Boolean(textFieldOptions);
 
     return (
-        <View style={{ marginTop: '6%', marginLeft: '20%', marginRight: '20%', color: fitColor }}>
+        <View style={{ marginTop: '6%', marginLeft: '20%', marginRight: '20%' }}>
             <div style={{ marginBottom: 10, display: 'inline-block', width: "90%" }}>
                 <Text style={{
-                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: fitColor
+                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: preferredColor
                 }}>
                     Header/footer
                 </Text>
@@ -401,7 +408,8 @@ export default function ComponentCreator({ state }) {
                         <input accept="text/plain,.yml" type="file" id="upload-file" style={{ display: 'none' }}
                             onChange={event => {
                                 const selectedFile = event.target.files[0];
-                                const fileExtension = selectedFile.name.substring(selectedFile.name.lastIndexOf('.') + 1);
+                                const fileName = selectedFile.name;
+                                const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
 
                                 if (fileExtension !== "txt" && fileExtension !== "text" && fileExtension !== "yml" && fileExtension !== "yaml") {
                                     return;
@@ -418,7 +426,7 @@ export default function ComponentCreator({ state }) {
                     <Button disableRipple disableElevation size="small" variant="outlined" title="Pick color"
                         id='pick-color-btn' onClick={() => {
                             if (colorPickerOpen) {
-                                document.getElementById("cp").removeChild(document.getElementById("color-picker"));
+                                document.getElementById("cp")?.removeChild(document.getElementById("color-picker"));
                                 colorPickerOpen = false;
                                 return;
                             }
@@ -426,7 +434,7 @@ export default function ComponentCreator({ state }) {
                             const divElement = document.createElement("div");
                             divElement.id = "color-picker";
 
-                            document.getElementById("cp").appendChild(divElement);
+                            document.getElementById("cp")?.appendChild(divElement);
 
                             new iro.ColorPicker(document.getElementById("color-picker"), {
                                 width: 250,
@@ -517,7 +525,7 @@ export default function ComponentCreator({ state }) {
             <Stack spacing={3} direction="row">
                 <FormGroup>
                     <FormControlLabel control={<Checkbox disableRipple checked={useTextArea} />} label="Use text area"
-                        onChange={() => {
+                        sx={{ color: preferredColor }} onChange={() => {
                             if (useTextArea) {
                                 localStorage.setItem("useTextArea", false);
                                 setUseTextArea(false);
@@ -554,7 +562,12 @@ export default function ComponentCreator({ state }) {
                                 let newTextFields = [...textFields];
 
                                 textFields.map((f, index) => {
-                                    document.getElementById("textfield" + f.id).value = "";
+                                    const tf = document.getElementById("textfield" + f.id);
+
+                                    if (tf) {
+                                        tf.value = "";
+                                    }
+
                                     newTextFields[index] = { value: "", id: f.id }; // Only resets the value in the array
                                 });
 
@@ -566,7 +579,12 @@ export default function ComponentCreator({ state }) {
                     :
                     <Button disableRipple disabled={textAreaButtonDisabled} variant="outlined" startIcon={<ClearIcon />}
                         onClick={() => {
-                            document.getElementById("textarea").value = "";
+                            const area = document.getElementById("textarea");
+
+                            if (area) {
+                                area.value = "";
+                            }
+
                             localStorage.removeItem("lastInput");
                             setTextAreaButtonDisabled(true);
                             setHtmlInput("");
@@ -578,8 +596,7 @@ export default function ComponentCreator({ state }) {
             {useTextArea ?
                 <form spellCheck="false">
                     <textarea style={{
-                        resize: 'none', maxWidth: '95%', fontSize: 16, marginTop: 10, backgroundColor: 'inherit',
-                        color: state.darkMode ? 'white' : 'initial'
+                        resize: 'none', width: '94%', fontSize: 16, marginTop: 10, backgroundColor: 'inherit', color: preferredColor
                     }}
                         id="textarea" wrap="hard" rows="8" cols="110" maxLength="4000"
                         defaultValue={!localStorage.lastInput ? "" : storedTextAreaValue}
@@ -637,7 +654,12 @@ export default function ComponentCreator({ state }) {
                                 const id = parseInt(textFieldOptions.id);
 
                                 updateTextFieldAtIndex(textFields.findIndex(va => va.id === id), "");
-                                document.getElementById("textfield" + id).value = "";
+
+                                const tf = document.getElementById("textfield" + id);
+                                if (tf) {
+                                    tf.value = "";
+                                }
+
                                 onTextFieldMenuClose();
                             }}>
                                 <ClearIcon />

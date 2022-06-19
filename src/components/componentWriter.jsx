@@ -6,7 +6,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import NativeSelect from '@mui/material/NativeSelect';
 
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 import '../style/output.scss';
 import '../style/mcmotdstyle.scss';
@@ -48,16 +48,16 @@ export default function ComponentWriter({ state, useTextArea, htmlInput }) {
 
     return (
         <>
-            <View style={{ display: 'inline-block', paddingTop: 10 }}>
+            <div style={{ display: 'inline-block', paddingTop: 5 }}>
                 <Text style={{
-                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: state.darkMode ? '#b5b5b5' : 'black'
+                    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20, color: state.darkMode ? '#b5b5b5' : 'initial'
                 }}>
                     Output
                 </Text>
 
                 <FormControl sx={{ float: 'inline-end', width: 200, marginRight: 8 }}>
                     <InputLabel variant="standard" htmlFor="sel-bgimg" sx={{
-                        color: state.darkMode ? 'white' : 'initial',
+                        color: state.darkMode ? '#b5b5b5' : 'initial',
                         fontFamily: "'Segoe UI', Roboto, Arial, sans-serif", fontSize: 20
                     }}>
                         Change background image
@@ -91,7 +91,7 @@ export default function ComponentWriter({ state, useTextArea, htmlInput }) {
                         <option>Sunset</option>
                     </NativeSelect>
                 </FormControl>
-            </View>
+            </div>
 
             <div className="output-content">
                 <img width={1080} height={480} src={backgroundImage} alt="tablist" />
